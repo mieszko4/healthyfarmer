@@ -1,25 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import styled from 'styled-components';
+
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+
+import { Video } from './Video';
+import { Home } from './Home';
+
+
+const Container = styled.div`
+  text-align: center;
+`;
+
+const Header = styled.header``;
+
+const StyledLink = styled(Link)`
+  color: #61dafb;
+`;
+
+const Content = styled.section`
+`;
+
+const NavigationList = styled.ul`
+  list-style: none;
+  display: flex;
+  grid-gap: 20px;
+`;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Container>
+        <Header>
+          <nav>
+            <NavigationList>
+              <li>
+                <StyledLink to="/">Home</StyledLink>
+              </li>
+              <li>
+                <StyledLink to="/video">New video run</StyledLink>
+              </li>
+            </NavigationList>
+          </nav>
+        </Header>
+
+        <Content>
+          <Switch>
+            <Route path="/video">
+              <Video />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </Content>
+
+      </Container>
+    </Router>
   );
 }
 
