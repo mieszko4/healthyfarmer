@@ -28,8 +28,11 @@ const predictHealth = async (tfVideo: WebcamIterator, model: tf.GraphModel) => {
   const grayShot = shot
     .mean(2)
     .toFloat()
+    .div(tf.scalar(255))
     .reshape([-1, 256, 256, 1])
     ;
+
+  //grayShot.print();
 
   const result = await model.predict(grayShot) as tf.Tensor;
   
