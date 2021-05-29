@@ -3,8 +3,7 @@ name: Upload Pwa
 on:
   push:
     branches:
-    - feature/pwa
-    - main
+    - TODO
 
 jobs:
   deploy:
