@@ -27,9 +27,12 @@ const Content = styled.section`
 const NavigationList = styled.ul`
   list-style: none;
   display: flex;
-  grid-gap: 20px;
   margin: 0;
   padding: 10px;
+
+  > li {
+    margin-left: 20px;
+  }
 `;
 
 function App() {

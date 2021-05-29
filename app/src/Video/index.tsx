@@ -6,6 +6,8 @@ import { WebcamIterator } from '@tensorflow/tfjs-data/dist/iterators/webcam_iter
 const facingMode = 'environment';
 
 const PreviewVideo = styled.video`
+  min-height: 100px;
+  min-width: 100px;
   max-width: 100%;
   max-height: 50vh;
 `;

@@ -27,5 +27,6 @@ export const Home = () => (
     <p>
       Welcome to Healthy Farmer!
     </p>
+    <p><em>Version 1.1</em></p>
   </>
 )
