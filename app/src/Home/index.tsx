@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
-import logo from './logo.svg';
+import logo from './logo.png';
 
 const Logo = styled.img`
+  margin: 50px 0;
   height: 40vmin;
   pointer-events: none;
 

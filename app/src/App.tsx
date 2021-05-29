@@ -28,6 +28,8 @@ const NavigationList = styled.ul`
   list-style: none;
   display: flex;
   grid-gap: 20px;
+  margin: 0;
+  padding: 10px;
 `;
 
 function App() {

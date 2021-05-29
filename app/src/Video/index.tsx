@@ -6,12 +6,13 @@ import { WebcamIterator } from '@tensorflow/tfjs-data/dist/iterators/webcam_iter
 const facingMode = 'environment';
 
 const PreviewVideo = styled.video`
-  width: 100%;
+  max-width: 100%;
+  max-height: 50vh;
 `;
 
 const Status = styled.label<{ isHealthy: boolean; }>`
   display: block;
-  margin-top: 100px;
+  margin-top: 10px;
   font-size: 30px;
   color: ${p => p.isHealthy ? 'green' : 'red'};
 `;
@@ -107,7 +108,7 @@ export const Video = () => {
       <p>Make a video of leaves - when unhealthy leave is detected you will be notified.</p>
 
       {stream && (
-        <PreviewVideo ref={videoRef} autoPlay />
+        <PreviewVideo ref={videoRef} playsInline autoPlay />
       )}
 
       {isHealthy !== null && (
