@@ -11,4 +11,4 @@ The app will deploy to https://d1avadby3b2n7k.cloudfront.net
 
 ## Models
 
-To apply new models run: `cp -r models/test_web/* app/public/models/health`
+To apply new models run: `cp -r models/test_CNN_web/* app/public/models/health`

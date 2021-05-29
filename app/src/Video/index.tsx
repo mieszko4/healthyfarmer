@@ -1,7 +1,13 @@
+import styled from 'styled-components';
 import * as tf from '@tensorflow/tfjs';
 import { useEffect, useRef, useState } from 'react';
+import { WebcamIterator } from '@tensorflow/tfjs-data/dist/iterators/webcam_iterator';
 
 const facingMode = 'environment';
+
+const PreviewVideo = styled.video`
+  width: 100%;
+`;
 
 const getUserMediaSupported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
@@ -16,14 +22,8 @@ const load = async () => {
   return { model, stream };
 };
 
-const predictHealth = async (video: HTMLVideoElement, model: tf.GraphModel) => {
-  const tfVideo = await tf.data.webcam(video, {
-    resizeWidth: 256,
-    resizeHeight: 256,
-    facingMode,
-  });
+const predictHealth = async (tfVideo: WebcamIterator, model: tf.GraphModel) => {
   const shot = await tfVideo.capture();
-  
 
   const grayShot = shot
     .mean(2)
@@ -31,8 +31,15 @@ const predictHealth = async (video: HTMLVideoElement, model: tf.GraphModel) => {
     .reshape([-1, 256, 256, 1])
     ;
 
-  const predictions = await model.predict(grayShot);
-  console.log(predictions, 'TODO?');
+  const result = await model.predict(grayShot) as tf.Tensor;
+  
+  result.print();
+
+  // TODO remove this and show live display over video
+  await new Promise((r) => setTimeout(r, 1000));
+
+  await tf.nextFrame();
+  await predictHealth(tfVideo, model);
 }
 
 export const Video = () => {
@@ -56,7 +63,11 @@ export const Video = () => {
     if (stream && model && videoRef.current) {
       videoRef.current.srcObject = stream;
 
-      predictHealth(videoRef.current, model);
+      tf.data.webcam(videoRef.current, {
+        resizeWidth: 256,
+        resizeHeight: 256,
+        facingMode,
+      }).then(tfVideo => predictHealth(tfVideo, model));
     }
   }, [stream, model])
   
@@ -65,7 +76,7 @@ export const Video = () => {
       <p>Make a video of leaves - when unhealthy leave is detected you will be notified.</p>
 
       {stream && (
-        <video ref={videoRef} autoPlay />
+        <PreviewVideo ref={videoRef} autoPlay />
       )}
     </>
   );
