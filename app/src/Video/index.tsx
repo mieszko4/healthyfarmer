@@ -9,6 +9,13 @@ const PreviewVideo = styled.video`
   width: 100%;
 `;
 
+const Status = styled.label<{ isHealthy: boolean; }>`
+  display: block;
+  margin-top: 100px;
+  font-size: 30px;
+  color: ${p => p.isHealthy ? 'green' : 'red'};
+`;
+
 const getUserMediaSupported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
 const load = async () => {
@@ -22,7 +29,24 @@ const load = async () => {
   return { model, stream };
 };
 
-const predictHealth = async (tfVideo: WebcamIterator, model: tf.GraphModel) => {
+const parseHealthPredictions = (data: Uint8Array | Float32Array | Int32Array) => {
+  if (data.every((dimension: number) => dimension < 0.8)) {
+    return {
+      isHealthy: null,
+      value: null,
+    };
+  };
+
+  const healthyPrediction = data[0];
+  const unhealthyPrediction = data[1];
+
+  const isHealthy = healthyPrediction > unhealthyPrediction;
+  const value = isHealthy ? healthyPrediction : unhealthyPrediction;
+  
+  return { isHealthy, value };
+}
+
+const predictHealth = async (tfVideo: WebcamIterator, model: tf.GraphModel, onResult: (result: tf.Tensor) => void) => {
   const shot = await tfVideo.capture();
 
   const grayShot = shot
@@ -35,16 +59,19 @@ const predictHealth = async (tfVideo: WebcamIterator, model: tf.GraphModel) => {
 
   const result = await model.predict(grayShot) as tf.Tensor;
   
-  result.print();
-
   // TODO remove this and show live display over video
-  await new Promise((r) => setTimeout(r, 1000));
+  // OR debounce with normalization
+  result.print();
+  await new Promise((r) => setTimeout(r, 500));
+  
+  onResult(result);
 
   await tf.nextFrame();
-  await predictHealth(tfVideo, model);
+  await predictHealth(tfVideo, model, onResult);
 }
 
 export const Video = () => {
+  const [result, setResult] = useState<tf.Tensor | null>(null);
   const [model, setModel] = useState<tf.GraphModel | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -69,9 +96,11 @@ export const Video = () => {
         resizeWidth: 256,
         resizeHeight: 256,
         facingMode,
-      }).then(tfVideo => predictHealth(tfVideo, model));
+      }).then(tfVideo => predictHealth(tfVideo, model, (result) => setResult(result)));
     }
   }, [stream, model])
+
+  const { isHealthy, value } = result ? parseHealthPredictions(result.dataSync()) : { isHealthy: null, value: null };
   
   return (
     <>
@@ -79,6 +108,21 @@ export const Video = () => {
 
       {stream && (
         <PreviewVideo ref={videoRef} autoPlay />
+      )}
+
+      {isHealthy !== null && (
+        <Status isHealthy={isHealthy}>
+          {
+            isHealthy ? (
+              'Healthy'
+            ) : (
+              'Unhealthy'
+            )
+          }
+        </Status>
+      )}
+      {value && (
+        <p>{(value * 100).toFixed(2)}%</p>
       )}
     </>
   );
