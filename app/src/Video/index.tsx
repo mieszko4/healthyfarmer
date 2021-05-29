@@ -1,6 +1,9 @@
 import * as tf from '@tensorflow/tfjs';
 import { useEffect, useRef, useState } from 'react';
 
+
+const getUserMediaSupported = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
 const load = async () => {
   const model = await tf.loadGraphModel('./models/health/model.json');
   
@@ -10,6 +13,10 @@ const load = async () => {
   });
 
   return { model, stream };
+};
+
+const predictHealth = (video: HTMLVideoElement, model: tf.GraphModel) => {
+  // TODO model.detect()
 }
 
 export const Video = () => {
@@ -18,6 +25,11 @@ export const Video = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
+    if (!getUserMediaSupported()) {
+      alert('Please use a modern browser');
+      return;
+    }
+
     load().then(({ model, stream }) => {
       setModel(model);
       setStream(stream);
@@ -25,10 +37,12 @@ export const Video = () => {
   }, []);
 
   useEffect(() => {
-    if (stream && videoRef.current) {
+    if (stream && model && videoRef.current) {
       videoRef.current.srcObject = stream;
+
+      predictHealth(videoRef.current, model);
     }
-  }, [stream])
+  }, [stream, model])
   
   return (
     <>
