@@ -12,3 +12,8 @@ The app will deploy to https://d1avadby3b2n7k.cloudfront.net
 ## Models
 
 To apply new models run: `cp -r models/CNN_web_resize/* app/public/models/health`
+
+## Testing PWA with fake video
+
+1. Convert video `ffmpeg -i result_unmarked.mp4 result_unmarked.mjpeg`
+1. Run chrome with faking the converted video: `google-chrome --use-fake-device-for-media-stream --use-file-for-fake-video-capture=result_unmarked.mjpeg`
